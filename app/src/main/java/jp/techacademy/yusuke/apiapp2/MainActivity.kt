@@ -9,29 +9,25 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), FragmentCallback {
 
-    private val viewPagerAdapter by lazy { ViewPagerAdapter(this) }
+    private val viewPagerAdapter by lazy{ViewPagerAdapter(this)}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // ViewPager2の初期化
-        viewPager2.apply {
+        viewPager2.apply{
             adapter = viewPagerAdapter
-            orientation = ViewPager2.ORIENTATION_HORIZONTAL // スワイプの向き横（ORIENTATION_VERTICAL を指定すれば縦スワイプで実装可能です）
-            offscreenPageLimit = viewPagerAdapter.itemCount // ViewPager2で保持する画面数
+            orientation = ViewPager2.ORIENTATION_HORIZONTAL
+            offscreenPageLimit = viewPagerAdapter.itemCount
         }
-
-        // TabLayoutの初期化
-        // TabLayoutとViewPager2を紐づける
-        // TabLayoutのTextを指定する
         TabLayoutMediator(tabLayout, viewPager2) { tab, position ->
             tab.setText(viewPagerAdapter.titleIds[position])
         }.attach()
     }
 
-    override fun onClickItem(url: String) {
-        WebViewActivity.start(this, url)
+    //    override fun onClickItem(url: String) {
+    override fun onClickItem(shop :FavoriteShop){
+        WebViewActivity.start(this,shop)
     }
 
     override fun onAddFavorite(shop: Shop) { // Favoriteに追加するときのメソッド(Fragment -> Activity へ通知する)
@@ -40,11 +36,16 @@ class MainActivity : AppCompatActivity(), FragmentCallback {
             name = shop.name
             imageUrl = shop.logoImage
             url = if (shop.couponUrls.sp.isNotEmpty()) shop.couponUrls.sp else shop.couponUrls.pc
+            address = shop.address
+            couponUrlsSP = shop.couponUrls.sp
+            couponUrlsPC = shop.couponUrls.pc
         })
+
         (viewPagerAdapter.fragments[VIEW_PAGER_POSITION_FAVORITE] as FavoriteFragment).updateData()
     }
 
-    override fun onDeleteFavorite(id: String) { // Favoriteから削除するときのメソッド(Fragment -> Activity へ通知する)
+    // Favoriteから削除するときのメソッド(Fragment -> Activity へ通知する)
+    override fun onDeleteFavorite(id: String) {
         showConfirmDeleteFavoriteDialog(id)
     }
 

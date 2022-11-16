@@ -9,20 +9,20 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.squareup.picasso.Picasso
+import com.squareup.picasso.Picasso as Picasso1
 
 class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
     // 取得したJsonデータを解析し、Shop型オブジェクトとして生成したものを格納するリスト
     private val items = mutableListOf<Shop>()
+    private val itemsF = FavoriteShop()
 
     // 一覧画面から登録するときのコールバック（FavoriteFragmentへ通知するメソッド)
     var onClickAddFavorite: ((Shop) -> Unit)? = null
     // 一覧画面から削除するときのコールバック（ApiFragmentへ通知するメソッド)
     var onClickDeleteFavorite: ((Shop) -> Unit)? = null
-
     // Itemを押したときのメソッド
-    var onClickItem: ((String) -> Unit)? = null
+    var onClickItem:((FavoriteShop) -> Unit)? = null
 
     fun refresh(list: List<Shop>) {
         update(list, false)
@@ -58,6 +58,8 @@ class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerVie
         val imageView: ImageView = view.findViewById(R.id.imageView)
         // レイアウトファイルからidがfavoriteImageViewのImageViewオブジェクトを取得し、代入
         val favoriteImageView: ImageView = view.findViewById(R.id.favoriteImageView)
+        // レイアウトファイルからidがfavoriteImageViewのTextViewオブジェクトを取得し、代入
+        val addressTextView: TextView = view.findViewById(R.id.addressTextView)
     }
 
     override fun getItemCount(): Int {
@@ -85,13 +87,24 @@ class ApiAdapter(private val context: Context): RecyclerView.Adapter<RecyclerVie
                 setBackgroundColor(ContextCompat.getColor(context,
                     if (position % 2 == 0) android.R.color.white else android.R.color.darker_gray))
                 setOnClickListener {
-                    onClickItem?.invoke(if (data.couponUrls.sp.isNotEmpty()) data.couponUrls.sp else data.couponUrls.pc)
+                    itemsF.apply{
+                        itemsF.id = data.id
+                        itemsF.imageUrl = data.logoImage
+                        itemsF.name = data.name
+                        itemsF.url = if (data.couponUrls.sp.isNotEmpty()) data.couponUrls.sp else data.couponUrls.pc
+                        itemsF.address = data.address
+                        itemsF.couponUrlsSP = data.couponUrls.sp
+                        itemsF.couponUrlsPC = data.couponUrls.pc
+                    }
+//                    onClickItem?.invoke(if (data.couponUrls.sp.isNotEmpty()) data.couponUrls.sp else data.couponUrls.pc)
+                    onClickItem?.invoke(itemsF)
                 }
             }
             // nameTextViewのtextプロパティに代入されたオブジェクトのnameプロパティを代入
             nameTextView.text = data.name
+            addressTextView.text = data.address
             // Picassoライブラリを使い、imageViewにdata.logoImageのurlの画像を読み込ませる
-            Picasso.get().load(data.logoImage).into(imageView)
+            Picasso1.get().load(data.logoImage).into(imageView)
             // 白抜きの星マークの画像を指定
             favoriteImageView.apply {
                 setImageResource(if (isFavorite) R.drawable.ic_star else R.drawable.ic_star_border) // Picassoというライブラリを使ってImageVIewに画像をはめ込む

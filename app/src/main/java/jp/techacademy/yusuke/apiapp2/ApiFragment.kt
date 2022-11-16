@@ -20,11 +20,8 @@ class ApiFragment: Fragment() {
 
     private val apiAdapter by lazy { ApiAdapter(requireContext()) }
     private val handler = Handler(Looper.getMainLooper())
-
     private var fragmentCallback : FragmentCallback? = null // Fragment -> Activity にFavoriteの変更を通知する
-
     private var page = 0
-
     // Apiでデータを読み込み中ですフラグ。追加ページの読み込みの時にこれがないと、連続して読み込んでしまうので、それの制御のため
     private var isLoading = false
 
@@ -147,7 +144,12 @@ class ApiFragment: Fragment() {
         swipeRefreshLayout.isRefreshing = false // SwipeRefreshLayoutのくるくるを消す
     }
 
-    companion object {
-        private const val COUNT = 20 // 1回のAPIで取得する件数
+    override fun onStart(){
+        super.onStart()
+        updateData()
+    }
+
+    companion object{
+        private const val COUNT = 20  // 1回のAPI通信で表示する件数
     }
 }

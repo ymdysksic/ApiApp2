@@ -3,28 +3,31 @@ package jp.techacademy.yusuke.apiapp2
 import io.realm.Realm
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
+import java.io.Serializable
 
-open class FavoriteShop: RealmObject() {
+open class FavoriteShop: RealmObject(), Serializable {
     @PrimaryKey
-    var id: String = ""
-    var imageUrl: String = ""
-    var name: String = ""
-    var url: String = ""
+    var id: String=""
+    var imageUrl:String=""
+    var name: String= ""
+    var url: String=""
     var address: String=""
     var couponUrlsSP: String=""
     var couponUrlsPC: String=""
 
-    companion object {
-        fun findAll(): List<FavoriteShop> = // お気に入りのShopを全件取得
-            Realm.getDefaultInstance().use { realm ->
+    // お気に入りのShopを全件取得
+    companion object{
+        fun findAll(): List<FavoriteShop> =
+            Realm.getDefaultInstance().use{ realm ->
                 realm.where(FavoriteShop::class.java)
                     .findAll().let {
                         realm.copyFromRealm(it)
                     }
             }
 
-        fun findBy(id: String): FavoriteShop? = // お気に入りされているShopをidで検索して返す。お気に入りに登録されていなければnullで返す
-            Realm.getDefaultInstance().use { realm ->
+        // お気に入りされているShopをidで検索して返す。お気に入りに登録されていなければnullで返す
+        fun findBy(id: String): FavoriteShop? =
+            Realm.getDefaultInstance().use{ realm ->
                 realm.where(FavoriteShop::class.java)
                     .equalTo(FavoriteShop::id.name, id)
                     .findFirst()?.let {
@@ -32,12 +35,14 @@ open class FavoriteShop: RealmObject() {
                     }
             }
 
-        fun insert(favoriteShop: FavoriteShop) = // お気に入り追加
+        // お気に入り追加
+        fun insert(favoriteShop: FavoriteShop) =
             Realm.getDefaultInstance().executeTransaction {
                 it.insertOrUpdate(favoriteShop)
             }
 
-        fun delete(id: String) = // idでお気に入りから削除する
+        // idでお気に入りから削除する
+        fun delete(id: String) =
             Realm.getDefaultInstance().use { realm ->
                 realm.where(FavoriteShop::class.java)
                     .equalTo(FavoriteShop::id.name, id)
